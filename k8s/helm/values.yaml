@@ -1,0 +1,78 @@
+# Configuración global para todos los microservicios
+# values.yaml - Helm chart values for microservices platform
+
+global:
+  environment: production
+  replicas: 3
+  
+  image:
+    pullPolicy: IfNotPresent
+    
+  resources:
+    limits:
+      cpu: "1000m"
+      memory: "512Mi"
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+      
+# Configuración de autoscaling
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Configuración de Ingress
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+  hosts:
+    - host: api.example.com
+      paths:
+        - path: /auth
+          pathType: Prefix
+          service: auth-service
+        - path: /users
+          pathType: Prefix
+          service: user-service
+        - path: /transactions
+          pathType: Prefix
+          service: transaction-service
+
+# Configuración de serviciosMicroservices:
+  auth-service:
+    name: auth-service
+    image: auth-service:latest
+    port: 8080
+    
+  user-service:
+    name: user-service
+    image: user-service:latest
+    port: 8081
+    
+  transaction-service:
+    name: transaction-service
+    image: transaction-service:latest
+    port: 8082
+
+# Configuración de monitoreo
+monitoring:
+  prometheus:
+    enabled: true
+    scrapeInterval: 15s
+  grafana:
+    enabled: true
+    adminPassword: admin
+
+# Configuración de ArgoCD
+argocd:
+  enabled: true
+  autoSync: true
+  syncPolicy: automated
+  prune: true
+  selfHeal: true

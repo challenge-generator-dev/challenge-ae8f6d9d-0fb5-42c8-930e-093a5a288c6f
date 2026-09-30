@@ -1,0 +1,30 @@
+# Configuración de ArgoCD para sincronizar el repositorio Git con el cluster Kubernetes
+# Este archivo es la superficie de práctica del ejercicio.
+# La configuración debe completarse para que ArgoCD sincronice correctamente los manifests
+# de Kubernetes desde el repositorio Git.
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: microservices-platform
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/empresa/microservices-platform.git
+    targetRevision: HEAD
+    path: k8s/manifests
+    # TODO: Configurar el plugin de Helm si es necesario
+    # helm:
+    #   valueFiles:
+    #     - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: microservices
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
